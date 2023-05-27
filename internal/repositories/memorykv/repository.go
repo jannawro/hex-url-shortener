@@ -49,7 +49,7 @@ func(s *store) IncrementSeq() (int, error) {
 }
 
 func(s *store) Dump() ([]domain.Url, error) {
-    urls := make([]domain.Url, len(s.kvStore))
+    urls := make([]domain.Url, 0, len(s.kvStore))
     for key, value := range s.kvStore {
         urls = append(urls, domain.Url{
             Shorthand: key,
