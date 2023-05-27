@@ -45,21 +45,12 @@ func (srv *service) GetAll() ([]domain.Url, error) {
 }
 
 func (srv *service) Create(host, url string) (domain.Url, error) {
-    hd := hashids.NewData()
-    hd.Salt = "hex arch exercise"
-    hd.MinLength = 6
-
-    h, err := hashids.NewWithData(hd);
-    if err != nil {
-        return domain.Url{}, errors.Join(ErrFailedEncodingUrl, err)
-    }
-
     seq, err := srv.urlRepository.IncrementSeq()
     if err != nil {
         return domain.Url{}, errors.Join(ErrFailedRepoIncrement, err)
     }
 
-    uniqueID, err := h.Encode([]int{seq})
+    uniqueID, err := generateHash(seq)
     if err != nil {
         return domain.Url{}, errors.Join(ErrFailedEncodingUrl, err)
     }
@@ -74,4 +65,22 @@ func (srv *service) Create(host, url string) (domain.Url, error) {
     }
 
     return saved, nil
+}
+
+func generateHash(uniqueInt int) (string, error) {
+    hd := hashids.NewData()
+    hd.Salt = "hex arch exercise"
+    hd.MinLength = 6
+
+    h, err := hashids.NewWithData(hd);
+    if err != nil {
+        return "", err
+    }
+
+    hash, err := h.Encode([]int{uniqueInt})
+    if err != nil {
+        return "", err
+    }
+
+    return hash, nil
 }
